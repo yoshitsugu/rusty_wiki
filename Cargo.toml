@@ -1,0 +1,9 @@
+[package]
+name = "rusty_wiki"
+version = "0.1.0"
+authors = ["yoshitsugu <yoshitsugu@users.noreply.github.com>"]
+
+[dependencies]
+gotham = "0.2.1"
+hyper = "0.11"
+mime = "0.3"
