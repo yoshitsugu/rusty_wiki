@@ -7,3 +7,4 @@ authors = ["yoshitsugu <yoshitsugu@users.noreply.github.com>"]
 gotham = "0.2.1"
 hyper = "0.11"
 mime = "0.3"
+diesel = { version = "1.0.0", features = ["postgres"] }

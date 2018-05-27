@@ -1,0 +1,14 @@
+version: '3'
+
+volumes:
+  wiki-db:
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - wiki-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pgpass

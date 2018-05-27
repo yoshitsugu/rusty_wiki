@@ -1,1 +1,1 @@
-pub mod hello_handler;
+pub mod posts_handler;

@@ -5,11 +5,11 @@ extern crate rusty_wiki;
 use gotham::router::Router;
 use gotham::router::builder::*;
 
-use rusty_wiki::handlers::hello_handler::say_hello;
+use rusty_wiki::handlers::*;
 
 fn router() -> Router {
     build_simple_router(|route| {
-        route.get("/posts").to(say_hello);
+        route.get("/posts").to(posts_handler::show);
     })
 }
 
