@@ -5,6 +5,7 @@ use gotham::http::response::create_response;
 use gotham::state::State;
 use hyper::{Response, StatusCode};
 use mime;
+use serde_json;
 
 pub fn show(state: State) -> (State, Response) {
     use super::super::models::post::posts::dsl::*;
@@ -16,13 +17,13 @@ pub fn show(state: State) -> (State, Response) {
         .load::<Post>(&connection)
         .expect("Error loading posts");
     let result = results.get(0).unwrap();
-
+    let serialized = serde_json::to_string(&result).unwrap();
     let res = create_response(
         &state,
         StatusCode::Ok,
         Some((
-            String::from(format!("{:?}", result)).into_bytes(),
-            mime::TEXT_PLAIN,
+            String::from(serialized).into_bytes(),
+            mime::APPLICATION_JSON,
         )),
     );
 

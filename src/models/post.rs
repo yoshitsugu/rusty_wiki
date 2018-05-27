@@ -7,7 +7,7 @@ table! {
     }
 }
 
-#[derive(Queryable, Debug)]
+#[derive(Queryable, Serialize, Debug)]
 pub struct Post {
     pub id: i32,
     pub title: String,
