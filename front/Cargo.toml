@@ -1,0 +1,7 @@
+[package]
+name = "rusty_wiki_front"
+version = "0.1.0"
+authors = ["yoshitsugu <yoshitsugu@users.noreply.github.com>"]
+
+[dependencies]
+yew = "0.3.0"

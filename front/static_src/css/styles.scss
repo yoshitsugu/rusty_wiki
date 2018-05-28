@@ -1,0 +1,50 @@
+@import "normalize";
+* {
+  box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    position: relative;
+    height: 100%;
+}
+
+$link_color: #3F3F3F;
+
+body {
+    font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue","游ゴシック Medium",YuGothic,YuGothicM,"Hiragino Kaku Gothic ProN",メイリオ,Meiryo,"Noto Sans JP",sans-serif;
+    font-size: 14px;
+    line-height: 1.8em;
+    height: 100%;
+    background-color: #EEE;
+    color: #333;
+}
+
+a {
+    color: $link_color;
+    text-decoration: underline dashed;
+    &:hover {
+        color: lighten($link_color, 10%);
+    }
+}
+
+#container {
+    max-width: 960px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    border-left: #555 1px solid;
+    height: 100%;
+    background-color: #FFF;
+
+    .menu {
+        padding: 5px;
+        border-right: #555 1px solid;
+    }
+
+    .main {
+        padding: 5px 10px;
+        border-right: #555 1px solid;
+    }
+}
+
