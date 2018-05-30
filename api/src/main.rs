@@ -9,8 +9,11 @@ use rusty_wiki::handlers::*;
 
 fn router() -> Router {
     build_simple_router(|route| {
-        route.get("/posts").to(posts_handler::show);
+        route.get("/posts").to(posts_handler::index);
+        route.get("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::show);
         route.post("/posts").to(posts_handler::post);
+        route.put("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::update);
+        route.delete("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::delete);
     })
 }
 
