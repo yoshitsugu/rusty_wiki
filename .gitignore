@@ -1,4 +1,5 @@
 /api/target
+.vscode
 /front/target
 /front/static/css/*
 **/*.rs.bk

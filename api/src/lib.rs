@@ -7,6 +7,8 @@ extern crate diesel;
 extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
+extern crate futures;
+extern crate pandoc;
 
 pub mod handlers;
 pub mod models;

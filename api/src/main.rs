@@ -10,6 +10,7 @@ use rusty_wiki::handlers::*;
 fn router() -> Router {
     build_simple_router(|route| {
         route.get("/posts").to(posts_handler::show);
+        route.post("/posts").to(posts_handler::post);
     })
 }
 

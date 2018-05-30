@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   wiki-db:
+    driver: local
 
 services:
   db:
