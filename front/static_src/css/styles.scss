@@ -1,57 +1,31 @@
-@import "normalize";
-
 * {
     box-sizing: border-box;
-  }
+}
 
-  html {
+html {
     height: 100%;
     position: relative;
 }
 
-$link_color: #3F3F3F;
-
 body {
     font-family: -apple-system,BlinkMacSystemFont,"Helvetica Neue","游ゴシック Medium",YuGothic,YuGothicM,"Hiragino Kaku Gothic ProN",メイリオ,Meiryo,"Noto Sans JP",sans-serif;
-    font-size: 14px;
-    line-height: 1.8em;
-    height: 100%;
     background-color: #EEE;
-    color: #333;
-    padding: 10px 0;
 }
 
 a {
-    color: $link_color;
-    text-decoration: underline dashed;
-    &:hover {
-        color: lighten($link_color, 10%);
-    }
+    cursor: pointer;
 }
 
-#container {
-    max-width: 1080px;
-    min-height: 100%;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 200px 1fr;
-
-    .menu {
-        padding: 5px;
-        box-shadow: rgba(0,0,0,0.2) 0px 1px 1px 0px;
-        margin-right: 10px;
-        background-color: #FFF;
-        .title {
-          width: 100%;
-          text-align: center;
-        }
-        min-height: 100%;
-    }
-
-    .main {
-        padding: 5px 10px;
-        box-shadow: rgba(0,0,0,0.2) 0px 1px 1px 0px;
-        background-color: #FFF;
-    }
+header .button.user_menu {
+    text-align: right;
 }
 
+.post_title_wrapper {
+    font-size: 1.2rem;
+    .post_edit {
+        text-align: right;
+    }
+}
+.buttons {
+    text-align: center;
+}

@@ -12,13 +12,15 @@ fn router() -> Router {
         route.get("/posts").to(posts_handler::index);
         route.get("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::show);
         route.post("/posts").to(posts_handler::post);
+        route.options("/posts/:id").to(options_handler::ok);
+        route.options("/posts").to(options_handler::ok);
         route.put("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::update);
         route.delete("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::delete);
     })
 }
 
 pub fn main() {
-    let addr = "127.0.0.1:7878";
+    let addr = "0.0.0.0:7878";
     println!("Listening for requests at http://{}", addr);
     gotham::start(addr, router())
 }
