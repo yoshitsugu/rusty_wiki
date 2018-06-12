@@ -1,5 +1,6 @@
 /api/target
 .vscode
+.bash_history
 /front/target
 /front/static/css/*
 **/*.rs.bk

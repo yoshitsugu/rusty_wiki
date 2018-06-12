@@ -1,0 +1,47 @@
+version: '3'
+
+volumes:
+  wiki-db:
+    driver: local
+  api-target:
+    driver: local
+  front-target:
+    driver: local
+
+services:
+  db:
+    image: postgres
+    volumes:
+      - wiki-db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: pgpass
+  h2o:
+    image: lkwg82/h2o-http2-server
+    ports:
+      - "8083:80"
+    volumes:
+      - ./containers/dev/h2o:/etc/h2o
+  api:
+    build:
+      dockerfile: ../containers/dev/api/Dockerfile
+      context: ./api
+    ports:
+      - "7878:7878"
+    environment:
+      DATABASE_URL: "postgres://postgres:pgpass@db/rusty_wiki"
+    volumes:
+      - ./api:/usr/src/app
+      - api-target:/usr/src/app/target
+  front:
+    build:
+      dockerfile: ../containers/dev/front/Dockerfile
+      context: ./front
+    environment:
+      API_HOSTNAME: "127.0.0.1:8083"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./front:/usr/src/app
+      - front-target:/usr/src/app/target
