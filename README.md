@@ -2,13 +2,18 @@
 Wiki implemented by Rust (both client-side and server-side).  
 **This project is only for my personal experiment. Please DO NOT use in production.**
 
-- Create page
+## Screen shots
+
+### Create page
+
 ![Create](images/create.gif)
 
-- Update page
+### Update page
+
 ![Update](images/update.gif)
 
-- delete page
+### delete page
+
 ![Delete](images/delete.gif)
 
 ## Quick Start
