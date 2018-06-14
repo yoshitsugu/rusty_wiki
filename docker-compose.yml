@@ -31,6 +31,7 @@ services:
       - "7878:7878"
     environment:
       DATABASE_URL: "postgres://postgres:pgpass@db/rusty_wiki"
+      MANUAL: $MANUAL
     volumes:
       - ./api:/usr/src/app
       - api-target:/usr/src/app/target
@@ -41,6 +42,7 @@ services:
       context: ./front
     environment:
       API_HOSTNAME: "127.0.0.1:8083"
+      MANUAL: $MANUAL
     ports:
       - "8000:8000"
     volumes:

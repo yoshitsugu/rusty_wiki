@@ -19,6 +19,7 @@ use models::{NewPost, Post};
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
+use yew::services::dialog::DialogService;
 use yew::services::fetch::{FetchService, FetchTask, Request, Response};
 
 use stdweb::unstable::TryFrom;
@@ -34,6 +35,7 @@ const API_HOSTNAME: &'static str = env!("API_HOSTNAME");
 pub struct Context {
     pub console: ConsoleService,
     pub web: FetchService,
+    pub dialog: DialogService,
 }
 
 impl AsMut<ConsoleService> for Context {
@@ -48,6 +50,12 @@ impl AsMut<FetchService> for Context {
     }
 }
 
+impl AsMut<DialogService> for Context {
+    fn as_mut(&mut self) -> &mut DialogService {
+        &mut self.dialog
+    }
+}
+
 pub struct Model {
     fetching: bool,
     ft: Option<FetchTask>,
@@ -59,16 +67,18 @@ pub struct Model {
 pub enum Msg {
     FetchData(i32),
     FetchReady(Result<Post, Error>),
+    FetchBlank,
     PutData(NewPost),
     SetEditing(bool),
     NewPost,
     PostData(NewPost),
+    DeleteData,
     Ignore,
 }
 
 impl<CTX> Component<CTX> for Model
 where
-    CTX: AsMut<FetchService> + AsMut<ConsoleService> + 'static,
+    CTX: AsMut<FetchService> + AsMut<DialogService> + AsMut<ConsoleService> + 'static,
 {
     type Msg = Msg;
     type Properties = ();
@@ -108,6 +118,12 @@ where
                 self.editing = false;
                 self.menu_updated = true;
                 self.post = response.ok();
+            }
+            Msg::FetchBlank => {
+                self.fetching = false;
+                self.editing = false;
+                self.menu_updated = true;
+                self.post = None;
             }
             Msg::SetEditing(editing) => {
                 self.editing = editing;
@@ -154,6 +170,26 @@ where
                 let task = fetch_service.fetch(request, callback);
                 self.ft = Some(task);
             }
+            Msg::DeleteData => {
+                if let Some(ref post) = self.post {
+                    self.fetching = true;
+                    let callback = env.send_back(|response: Response<Json<Result<String, Error>>>| {
+                        let (meta, _) = response.into_parts();
+                        if meta.status.is_success() {
+                            Msg::FetchBlank
+                        } else {
+                            Msg::Ignore // FIXME: Handle this error accordingly.
+                        }
+                    });
+                    let request =
+                        Request::delete(format!("http://{}/posts/{}", API_HOSTNAME, post.id))
+                            .body(Nothing)
+                            .unwrap();
+                    let fetch_service: &mut FetchService = env.as_mut();
+                    let task = fetch_service.fetch(request, callback);
+                    self.ft = Some(task);
+                }
+            }
             Msg::Ignore => {
                 let console_service: &mut ConsoleService = env.as_mut();
                 self.post = None;
@@ -166,7 +202,7 @@ where
 
 impl<CTX> Renderable<CTX, Model> for Model
 where
-    CTX: AsMut<FetchService> + AsMut<ConsoleService> + 'static,
+    CTX: AsMut<FetchService> + AsMut<DialogService> + AsMut<ConsoleService> + 'static,
 {
     fn view(&self) -> Html<CTX, Self> {
         html! {
@@ -200,7 +236,7 @@ where
 impl Model {
     fn show_post_html<CTX>(&self) -> Html<CTX, Model>
     where
-        CTX: AsMut<FetchService> + AsMut<ConsoleService> + 'static,
+        CTX: AsMut<FetchService> + AsMut<DialogService> + AsMut<ConsoleService> + 'static,
     {
         if let Some(ref value) = self.post {
             if self.editing {
@@ -208,6 +244,7 @@ impl Model {
                   <PostForm: post=value.to_new_post(),
                   oncancel=|_| Msg::SetEditing(false),
                   onsubmit=|new_post| Msg::PutData(new_post),
+                  ondelete=|_| Msg::DeleteData,
                   />
                 }
             } else {
@@ -231,6 +268,7 @@ impl Model {
                   <PostForm: post=NewPost::new(),
                   oncancel=|_| Msg::SetEditing(false),
                   onsubmit=|new_post| Msg::PostData(new_post),
+                  ondelete=None,
                   />
                 }
             } else {
@@ -247,7 +285,7 @@ impl Model {
 
     fn post_body_html<CTX>(&self, post: &Post) -> Html<CTX, Model>
     where
-        CTX: AsMut<FetchService> + AsMut<ConsoleService> + 'static,
+        CTX: AsMut<FetchService> + AsMut<DialogService> + AsMut<ConsoleService> + 'static,
     {
         let post_div = js! {
             var div = document.createElement("div");
