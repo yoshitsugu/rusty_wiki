@@ -16,6 +16,8 @@ fn router() -> Router {
         route.options("/posts").to(options_handler::ok);
         route.put("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::update);
         route.delete("/posts/:id").with_path_extractor::<posts_handler::PostPathExtractor>().to(posts_handler::delete);
+        route.options("/titles").to(options_handler::ok);
+        route.get("/titles").to(titles_handler::index);
     })
 }
 

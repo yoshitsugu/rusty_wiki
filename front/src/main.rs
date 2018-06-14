@@ -1,8 +1,4 @@
 extern crate yew;
-extern crate failure;
-extern crate stdweb;
-extern crate serde;
-extern crate serde_json;
 extern crate rusty_wiki_front;
 
 use yew::prelude::*;

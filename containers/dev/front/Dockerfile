@@ -24,5 +24,3 @@ RUN cargo install cargo-web
 
 ENV HISTFILE=/usr/src/app/.bash_history
 ENV LANG=ja_JP.UTF-8
-
-CMD tail -f < /dev/null

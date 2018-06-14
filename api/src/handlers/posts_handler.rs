@@ -1,5 +1,3 @@
-use super::super::models::db::establish_connection;
-use super::super::models::post::{NewPost, Post};
 use diesel;
 use diesel::prelude::*;
 use futures::{future, Future, Stream};
@@ -10,8 +8,9 @@ use hyper::{Body, Response, StatusCode};
 use mime;
 use serde_json;
 
-use super::super::models::post::posts;
-use super::super::models::post::posts::dsl::*;
+use models::db::establish_connection;
+use models::post::posts::dsl::*;
+use models::post::{posts, NewPost, Post, PostForm};
 
 #[derive(Debug, Deserialize, StateData, StaticResponseExtender)]
 pub struct PostPathExtractor {
@@ -81,7 +80,13 @@ pub fn post(mut state: State) -> Box<HandlerFuture> {
         .then(|full_body| match full_body {
             Ok(valid_body) => {
                 let body_content = String::from_utf8(valid_body.to_vec()).unwrap();
-                let mut post: NewPost = serde_json::from_str(&body_content).unwrap();
+                let post_form: PostForm = serde_json::from_str(&body_content).unwrap();
+                let mut post: NewPost = NewPost {
+                    title: post_form.title,
+                    body: post_form.body,
+                    body_html: "".to_string(),
+                    published: true,
+                };
                 match post.generate_body_html() {
                     Ok(_html) => {
                         if post.title.len() > 0 {
@@ -121,7 +126,13 @@ pub fn update(mut state: State) -> Box<HandlerFuture> {
             Ok(valid_body) => {
                 let connection = establish_connection();
                 let body_content = String::from_utf8(valid_body.to_vec()).unwrap();
-                let mut post: NewPost = serde_json::from_str(&body_content).unwrap();
+                let post_form: PostForm = serde_json::from_str(&body_content).unwrap();
+                let mut post: NewPost = NewPost {
+                    title: post_form.title,
+                    body: post_form.body,
+                    body_html: "".to_string(),
+                    published: true,
+                };
                 match post.generate_body_html() {
                     Ok(_html) => {
                         let result: Result<Post, _> = {

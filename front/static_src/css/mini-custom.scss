@@ -142,5 +142,13 @@ $spinner-donut-tertiary-fore-color:   #308732;    // Foreground color for tertia
 @import './mini/icon';
 @import './mini/utility';
 
+$icon-plus-square-name:         'plus-square' !default;        // Class name suffix for plus-square icon.
+
+span{
+  &.#{$icon-prefix}-#{$icon-plus-square-name}{
+    background-image: url('/image/plus-square.svg');
+  }
+}
+
 .responsive-label {align-items: center;}
 @media (min-width: 768px) { .responsive-label .col-md-3 {text-align: right;}}

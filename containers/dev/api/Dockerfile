@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y pandoc \
      --no-install-recommends && \
      rm -rf /var/lib/apt/lists/*
 
+RUN cargo install diesel_cli
+
 ENV HISTFILE=/usr/src/app/.bash_history
 ENV LANG=ja_JP.UTF-8
-
-CMD tail -f < /dev/null

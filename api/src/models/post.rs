@@ -29,6 +29,12 @@ pub struct NewPost {
     pub published: bool,
 }
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct PostForm {
+    pub title: String,
+    pub body: String
+}
+
 impl NewPost {
     pub fn generate_body_html(&mut self) -> Result<String, pandoc::PandocError> {
         let mut pandoc = pandoc::new();

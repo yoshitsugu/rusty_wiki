@@ -10,9 +10,12 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
+pub mod api;
+pub mod components;
+pub mod models;
+
 use failure::Error;
-#[macro_use]
-use std::env;
+use models::{NewPost, Post};
 use yew::format::{Json, Nothing};
 use yew::prelude::*;
 use yew::services::console::ConsoleService;
@@ -23,16 +26,10 @@ use stdweb::web::Node;
 
 use yew::virtual_dom::VNode;
 
-const API_HOSTNAME: &'static str = env!("API_HOSTNAME");
+use components::menu::Menu;
+use components::post_form::PostForm;
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct Post {
-    pub id: i32,
-    pub title: String,
-    pub body: String,
-    pub body_html: String,
-    pub published: bool,
-}
+const API_HOSTNAME: &'static str = env!("API_HOSTNAME");
 
 pub struct Context {
     pub console: ConsoleService,
@@ -56,15 +53,16 @@ pub struct Model {
     ft: Option<FetchTask>,
     post: Option<Post>,
     editing: bool,
+    menu_updated: bool,
 }
 
 pub enum Msg {
     FetchData(i32),
     FetchReady(Result<Post, Error>),
-    PutData,
+    PutData(NewPost),
     SetEditing(bool),
-    UpdateTitle(String),
-    UpdateBody(String),
+    NewPost,
+    PostData(NewPost),
     Ignore,
 }
 
@@ -81,6 +79,7 @@ where
             post: None,
             ft: None,
             editing: false,
+            menu_updated: false,
         }
     }
 
@@ -91,7 +90,6 @@ where
                 self.editing = false;
                 let callback = env.send_back(|response: Response<Json<Result<Post, Error>>>| {
                     let (meta, Json(data)) = response.into_parts();
-                    println!("META: {:?}, {:?}", meta, data);
                     if meta.status.is_success() {
                         Msg::FetchReady(data)
                     } else {
@@ -108,10 +106,14 @@ where
             Msg::FetchReady(response) => {
                 self.fetching = false;
                 self.editing = false;
+                self.menu_updated = true;
                 self.post = response.ok();
             }
-            Msg::PutData => {
-                if let Some(post_data) = self.post.clone() {
+            Msg::SetEditing(editing) => {
+                self.editing = editing;
+            }
+            Msg::PutData(new_post) => {
+                if let Some(ref post) = self.post {
                     self.fetching = true;
                     let callback =
                         env.send_back(|response: Response<Json<Result<Post, Error>>>| {
@@ -123,32 +125,34 @@ where
                             }
                         });
                     let request =
-                        Request::put(format!("http://{}/posts/{}", API_HOSTNAME, post_data.id))
-                            .body(serde_json::to_string(&post_data).unwrap())
+                        Request::put(format!("http://{}/posts/{}", API_HOSTNAME, post.id))
+                            .body(serde_json::to_string(&new_post).unwrap())
                             .unwrap();
                     let fetch_service: &mut FetchService = env.as_mut();
                     let task = fetch_service.fetch(request, callback);
                     self.ft = Some(task);
                 }
             }
-            Msg::SetEditing(editing) => {
-                self.editing = editing;
+            Msg::NewPost => {
+                self.post = None;
+                self.editing = true;
             }
-            Msg::UpdateTitle(title) => {
-                if let Some(post_data) = self.post.clone() {
-                    self.post = Some(Post {
-                        title: title,
-                        ..post_data
-                    });
-                }
-            }
-            Msg::UpdateBody(body) => {
-                if let Some(post_data) = self.post.clone() {
-                    self.post = Some(Post {
-                        body: body,
-                        ..post_data
-                    });
-                }
+            Msg::PostData(new_post) => {
+                self.fetching = true;
+                let callback = env.send_back(|response: Response<Json<Result<Post, Error>>>| {
+                    let (meta, Json(data)) = response.into_parts();
+                    if meta.status.is_success() {
+                        Msg::FetchReady(data)
+                    } else {
+                        Msg::Ignore // FIXME: Handle this error accordingly.
+                    }
+                });
+                let request = Request::post(format!("http://{}/posts", API_HOSTNAME))
+                    .body(serde_json::to_string(&new_post).unwrap())
+                    .unwrap();
+                let fetch_service: &mut FetchService = env.as_mut();
+                let task = fetch_service.fetch(request, callback);
+                self.ft = Some(task);
             }
             Msg::Ignore => {
                 let console_service: &mut ConsoleService = env.as_mut();
@@ -171,9 +175,9 @@ where
                 <div class="container",>
                   <div class="row",>
                     <a href="#", class=("logo", "col-sm-8"),>{ "RustyWiki" }</a>
-                    <a href="#", class=("button", "col-sm-4", "user_menu"),>
-                      <span class="icon-user",></span>
-                      { "User" }
+                    <a class=("button", "col-sm-4", "user_menu"), onclick=|_| Msg::NewPost,>
+                      <span class="icon-plus-square",></span>
+                      { "New Page" }
                     </a>
                   </div>
                 </div>
@@ -181,11 +185,7 @@ where
               <div class="container",>
                 <div class="row",>
                   <div class="col-sm-4",>
-                    <nav>
-                      <a class="nav-item", onclick=|_| Msg::FetchData(2),>{ "post 2" }</a>
-                      <a class="nav-item", onclick=|_| Msg::FetchData(3),>{ "post 3" }</a>
-                      <a class="nav-item", onclick=|_| Msg::FetchData(4),>{ "post 4" }</a>
-                    </nav>
+                    <Menu: onclick=|post_id| Msg::FetchData(post_id), updated=self.menu_updated,/>
                   </div>
                   <div class=("main", "col-sm-8"),>
                     { self.show_post_html() }
@@ -205,38 +205,10 @@ impl Model {
         if let Some(ref value) = self.post {
             if self.editing {
                 html! {
-                  <div class=("card", "fluid"),>
-                    <form>
-                      <div class="row",>
-                        <div class="col-sm-12",>
-                          <input id="title",
-                                 type="text",
-                                 oninput=|e: InputData| Msg::UpdateTitle(e.value),
-                                 style="width: 100%",
-                                 value=&value.title,
-                                 placeholder="Title", />
-                        </div>
-                      </div>
-                      <div class="row",>
-                        <div class="col-sm-12",>
-                          <textarea id="body",
-                                    rows=20,
-                                    type="text",
-                                    style="width: 100%",
-                                    oninput=|e: InputData| Msg::UpdateBody(e.value),
-                          >
-                            { &value.body }
-                          </textarea>
-                        </div>
-                      </div>
-                    </form>
-                    <div class="row",>
-                      <div class=("col-sm-12", "buttons"),>
-                        <button onclick=|_| Msg::SetEditing(false),>{ "cancel" }</button>
-                        <button class="primary", onclick=|_| Msg::PutData,>{ "submit" }</button>
-                      </div>
-                    </div>
-                  </div>
+                  <PostForm: post=value.to_new_post(),
+                  oncancel=|_| Msg::SetEditing(false),
+                  onsubmit=|new_post| Msg::PutData(new_post),
+                  />
                 }
             } else {
                 html! {
@@ -254,10 +226,21 @@ impl Model {
                 }
             }
         } else {
-            html! {
-              <div class=("card", "fluid"),>
-                <div class="section",>{ "Data hasn't fetched yet." }</div>
-              </div>
+            if self.editing {
+                html! {
+                  <PostForm: post=NewPost::new(),
+                  oncancel=|_| Msg::SetEditing(false),
+                  onsubmit=|new_post| Msg::PostData(new_post),
+                  />
+                }
+            } else {
+                html! {
+                  <div class=("card", "fluid"),>
+                    <div class="section", style="min-height: 300px;", >
+                      <h2>{ "RustyWiki HOME" }</h2>
+                    </div>
+                  </div>
+                }
             }
         }
     }

@@ -34,6 +34,7 @@ services:
     volumes:
       - ./api:/usr/src/app
       - api-target:/usr/src/app/target
+    command: bin/start.sh
   front:
     build:
       dockerfile: ../containers/dev/front/Dockerfile
@@ -45,3 +46,4 @@ services:
     volumes:
       - ./front:/usr/src/app
       - front-target:/usr/src/app/target
+    command: bin/start.sh
