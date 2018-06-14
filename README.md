@@ -2,6 +2,15 @@
 Wiki implemented by Rust (both client-side and server-side).  
 **This project is only for my personal experiment. Please DO NOT use in production.**
 
+- Create page
+![Create](images/create.gif)
+
+- Update page
+![Update](images/update.gif)
+
+- delete page
+![Delete](images/delete.gif)
+
 ## Quick Start
 You can use docker-compose for quick look.
 
