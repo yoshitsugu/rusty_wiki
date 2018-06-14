@@ -123,10 +123,18 @@ where
     CTX: AsMut<FetchService> + 'static,
 {
     fn view(&self) -> Html<CTX, Self> {
-        html!{
-            <nav>
-              { for self.titles.clone().into_iter().map(|title| self.render_title(title, 0)) }
-            </nav>
+        if self.titles.len() == 0 {
+            html! {
+              <nav>
+                <span> { "There is no pages yet. "} </span>
+              </nav>
+            }
+        } else {
+            html!{
+                <nav>
+                  { for self.titles.clone().into_iter().map(|title| self.render_title(title, 0)) }
+                </nav>
+            }
         }
     }
 }

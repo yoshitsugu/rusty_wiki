@@ -173,14 +173,15 @@ where
             Msg::DeleteData => {
                 if let Some(ref post) = self.post {
                     self.fetching = true;
-                    let callback = env.send_back(|response: Response<Json<Result<String, Error>>>| {
-                        let (meta, _) = response.into_parts();
-                        if meta.status.is_success() {
-                            Msg::FetchBlank
-                        } else {
-                            Msg::Ignore // FIXME: Handle this error accordingly.
-                        }
-                    });
+                    let callback =
+                        env.send_back(|response: Response<Json<Result<String, Error>>>| {
+                            let (meta, _) = response.into_parts();
+                            if meta.status.is_success() {
+                                Msg::FetchBlank
+                            } else {
+                                Msg::Ignore // FIXME: Handle this error accordingly.
+                            }
+                        });
                     let request =
                         Request::delete(format!("http://{}/posts/{}", API_HOSTNAME, post.id))
                             .body(Nothing)

@@ -167,7 +167,7 @@ impl PostForm {
               </div>
             }
         } else {
-            html!{}
+            html!{ <span></span> }
         }
     }
 }
