@@ -146,14 +146,18 @@ impl Menu {
         match title.post_id {
             Some(pid) => {
                 html!{
-                    <a class=("nav-item", sublink), onclick=move |_| Msg::OnClick(pid),>{ title.title }</a>
-                    { children_node }
+                    <>
+                      <a class=("nav-item", sublink), onclick=move |_| Msg::OnClick(pid),>{ title.title }</a>
+                      { children_node }
+                    </>
                 }
             }
             None => {
                 html!{
-                    <span class=sublink,>{ title.title }</span>
-                    { children_node }
+                    <>
+                      <span class=("nav-item", sublink),>{ title.title }</span>
+                        { children_node }
+                    </>
                 }
             }
         }

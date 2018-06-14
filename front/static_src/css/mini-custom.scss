@@ -152,3 +152,10 @@ span{
 
 .responsive-label {align-items: center;}
 @media (min-width: 768px) { .responsive-label .col-md-3 {text-align: right;}}
+
+$nav-padding: var(--universal-padding) calc(1.5 * var(--universal-padding));
+nav {
+    span.nav-item {
+        display: block;
+    }
+}
